@@ -65,6 +65,24 @@ class Kinematics:
                 [0, 0, 0, 1]]))
         return np.matmul(dh_fk, np.matrix([[0],[0],[0],[1]]))
 
+    def x_der(self, t):
+        return [-(self.R3*np.cos(t[3])+self.R2)*np.sin(t[0]+t[1]+t[2])-self.R1*(np.sin(t[0]+t[1])+np.sin(t[0])),\
+        -(self.R3*np.cos(t[3])+self.R2)*np.sin(t[0]+t[1]+t[2])-self.R1*np.sin(t[0]+t[1]),\
+        -(self.R3*np.cos(t[3])+self.R2)*np.sin(t[0]+t[1]+t[2]),\
+        -self.R3*np.sin(t[3])*np.cos(t[0]+t[1]+t[2])]
+
+    def y_der(self, t):
+        return [(self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2])-self.R1*(np.cos(t[0]+t[1])+np.cos(t[0])),\
+        (self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2])+self.R1*np.cos(t[0]+t[1]),\
+        (self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2]),\
+        -self.R3*np.sin(t[3])*np.sin(t[0]+t[1]+t[2])]
+
+    def z_der(self, t):
+        return [0,0,0,-self.R3*np.cos(t[3])]
+    
+    def jacobian(self, t):
+        return np.matrix([self.x_der(t),self.y_der(t),self.z_der(t)])
+    
     def move_to(self, target_x, target_y, target_z):
         # update object variables
         self.input_x = target_x
@@ -108,24 +126,6 @@ class Kinematics:
         print('final angles:')
         print([round(np.rad2deg(item),2) for item in self.T])
         return 1
-
-    def x_der(self, t):
-        return [-(self.R3*np.cos(t[3])+self.R2)*np.sin(t[0]+t[1]+t[2])-self.R1*(np.sin(t[0]+t[1])+np.sin(t[0])),\
-        -(self.R3*np.cos(t[3])+self.R2)*np.sin(t[0]+t[1]+t[2])-self.R1*np.sin(t[0]+t[1]),\
-        -(self.R3*np.cos(t[3])+self.R2)*np.sin(t[0]+t[1]+t[2]),\
-        -self.R3*np.sin(t[3])*np.cos(t[0]+t[1]+t[2])]
-
-    def y_der(self, t):
-        return [(self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2])-self.R1*(np.cos(t[0]+t[1])+np.cos(t[0])),\
-        (self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2])+self.R1*np.cos(t[0]+t[1]),\
-        (self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2]),\
-        -self.R3*np.sin(t[3])*np.sin(t[0]+t[1]+t[2])]
-
-    def z_der(self, t):
-        return [0,0,0,-self.R3*np.cos(t[3])]
-    
-    def jacobian(self, t):
-        return np.matrix([self.x_der(t),self.y_der(t),self.z_der(t)])
 
     #def x(self, t):
     #    return self.input_x - ((self.R3*np.cos(t[3])+self.R2)*np.cos(t[0]+t[1]+t[2])+self.R1*np.cos(t[0]+t[1])+self.R1*np.cos(t[0]))
