@@ -11,18 +11,18 @@
 
   <link name="upperarm">
       <visual>
-            <origin xyz="2.5 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <origin xyz="10. 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <box size="5.0 1.0 1.0"/>
+                <box size="20.0 1.0 1.0"/>
             </geometry>
       </visual>
   </link>
 
   <link name="lowerarm">
       <visual>
-            <origin xyz="2.5 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <origin xyz="10. 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <box size="5.0 1.0 1.0"/>
+                <box size="20.0 1.0 1.0"/>
             </geometry>
       </visual>
   </link>
@@ -49,7 +49,7 @@
         <parent link="base_link"/>
         <child link="upperarm"/>
         <axis xyz="0 0 1"/>
-        <limit effort="1000.0" lower="0.0" upper="6.283" velocity="0.5"/>
+        <limit effort="1000.0" lower="-3.1416" upper="3.1416" velocity="0.5"/>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
   </joint>
 
@@ -57,23 +57,23 @@
         <parent link="upperarm"/>
         <child link="lowerarm"/>
         <axis xyz="0 0 1"/>
-        <limit effort="1000.0" lower="0.0" upper="6.283" velocity="0.5"/>
-        <origin xyz="5.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <limit effort="1000.0" lower="-3.1416" upper="3.1416" velocity="0.5"/>
+        <origin xyz="20.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <joint name="lowerarm_to_wrist" type="revolute">
         <parent link="lowerarm"/>
         <child link="wrist"/>
         <axis xyz="0 0 1"/>
-        <limit effort="1000.0" lower="-1.571" upper="1.571" velocity="0.5"/>
-        <origin xyz="5.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <limit effort="1000.0" lower="-3.1416" upper="3.1416" velocity="0.5"/>
+        <origin xyz="20.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <joint name="wrist_to_grip" type="revolute">
         <parent link="wrist"/>
         <child link="grip"/>
         <axis xyz="0 1 0"/>
-        <limit effort="1000.0" lower="-1.571" upper="1.571" velocity="0.5"/>
+        <limit effort="1000.0" lower="-3.1416" upper="3.1416" velocity="0.5"/>
         <origin xyz="1.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
   </joint>
 
