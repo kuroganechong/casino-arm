@@ -6,19 +6,8 @@ if os.name == 'nt':
     import msvcrt
     def getch():
         return msvcrt.getch().decode()
-else:
-    import sys, tty, termios
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    def getch():
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
 
-from dynamixel_sdk import *                     # Uses Dynamixel SDK library
+from dynamixel_sdk import PortHandler, PacketHandler, GroupSyncWrite, COMM_SUCCESS, DXL_LOBYTE, DXL_LOWORD, DXL_HIBYTE, DXL_HIWORD # Uses Dynamixel SDK library
 
 # Data Byte Length
 LEN_AX12A_GOAL_POSITION       = 4
@@ -82,13 +71,15 @@ else:
 def torque_enable(id):
     dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, id, ADDR_AX12A_TORQUE_ENABLE, TORQUE_ENABLE)
     if dxl_comm_result != COMM_SUCCESS:
-        print('id' + str(id) + 'torque_enable result error')
-        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-        return 0
+        print('id ' + str(id) + 'torque_enable result error')
+        #print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        time.sleep(0.1)
+        return torque_enable(id)
     elif dxl_error != 0:
-        print('id' + str(id) + 'torque_enable packet error')
-        print("%s" % packetHandler.getRxPacketError(dxl_error))
-        return 0
+        print('id ' + str(id) + 'torque_enable packet error')
+        #print("%s" % packetHandler.getRxPacketError(dxl_error))
+        time.sleep(0.1)
+        return torque_enable(id)
     else:
         print("Dynamixel#%d has been successfully connected" % id)
         return 1
@@ -96,13 +87,15 @@ def torque_enable(id):
 def torque_disable(id):
     dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, id, ADDR_AX12A_TORQUE_ENABLE, TORQUE_DISABLE)
     if dxl_comm_result != COMM_SUCCESS:
-        print('id' + str(id) + 'torque_disable result error')
-        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-        return 0
+        print('id ' + str(id) + 'torque_disable result error')
+        #print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        time.sleep(0.1)
+        return torque_disable(id)
     elif dxl_error != 0:
-        print('id' + str(id) + 'torque_disable packet error')
-        print("%s" % packetHandler.getRxPacketError(dxl_error))
-        return 0
+        print('id ' + str(id) + 'torque_disable packet error')
+        #print("%s" % packetHandler.getRxPacketError(dxl_error))
+        time.sleep(0.1)
+        return torque_disable(id)
     else:
         return 1
 
@@ -117,13 +110,17 @@ def add_params(id,params):
 def read_pos(id):
     dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, id, ADDR_AX12A_PRESENT_POSITION)
     if dxl_comm_result != COMM_SUCCESS:
-        print('id' + str(id) + 'read_pos result error')
-        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        print('id ' + str(id) + 'read_pos result error')
+        #print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        time.sleep(0.1)
+        return read_pos(id)
     elif dxl_error != 0:
-        print('id' + str(id) + 'read_pos packet error')
-        print("%s" % packetHandler.getRxPacketError(dxl_error))
-    
-    return dxl_present_position/1024*300*np.pi/180
+        print('id ' + str(id) + 'read_pos packet error')
+        #print("%s" % packetHandler.getRxPacketError(dxl_error))
+        time.sleep(0.1)
+        return read_pos(id)
+    else:
+        return dxl_present_position/1024*300*np.pi/180
 
 class Kinematics:
     # AX12A/AX18A rotate 300 degrees
@@ -323,6 +320,7 @@ class Kinematics:
         ERROR = 0.5
         target = np.matrix([[target_x], [target_y], [target_z], [1]])
         # Start timer
+        basestart = time.monotonic()
         start = time.monotonic()
         # Update latest angles before starting
         self.dynamixel_read()
@@ -331,14 +329,14 @@ class Kinematics:
             error_vector = np.subtract(target, current_pos)
             # angle increment = transpose of jacobian * errorvector * step, store as list
             angle_increment = np.matrix.tolist(np.matmul(np.transpose(self.jacobian(self.T)), np.multiply(error_vector[:-1], 1/DELTA)))
-            # within acceptable error
-            if (abs(error_vector[0]) < ERROR and abs(error_vector[1]) < ERROR and abs(error_vector[2]) < ERROR and abs(error_vector[3]) < ERROR):
+            # within acceptable error/over the time limit, get the latest value
+            if (time.monotonic() - basestart > 15) or ((abs(error_vector[0]) < ERROR and abs(error_vector[1]) < ERROR and abs(error_vector[2]) < ERROR and abs(error_vector[3]) < ERROR)):
                 break
             # too slow
             elif (time.monotonic() - start > 4) or (sum([abs(x) for [x] in angle_increment]) < 0.01):
+                start = time.monotonic()
                 #pick another random input if angle_increment ~ 0 but error_vector > ERROR
                 self.T = np.random.randint(7, size=4).tolist()
-
             self.T[0] += angle_increment[0][0]
             self.T[1] += angle_increment[1][0]
             self.T[2] += angle_increment[2][0]
