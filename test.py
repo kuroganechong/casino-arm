@@ -30,7 +30,7 @@ ADDR_AX12A_PRESENT_POSITION   = 36
 PROTOCOL_VERSION            = 1                 # See which protocol version is used in the Dynamixel
 
 # Default setting
-DXL_ID                      = 3                 # Dynamixel ID : 1
+DXL_ID                      = 5                 # Dynamixel ID : 1
 BAUDRATE                    = 1000000           # Dynamixel default baudrate : 57600
 DEVICENAME                  = 'COM3'            # Check which port is being used on your controller
 

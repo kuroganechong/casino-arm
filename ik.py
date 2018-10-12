@@ -22,10 +22,10 @@ ADDR_AX12A_PRESENT_POSITION   = 36
 PROTOCOL_VERSION            = 1                 # See which protocol version is used in the Dynamixel
 
 # Default setting
-DXL1_ID                      = 1                 # Shoulder
+DXL1_ID                      = 5                 # Shoulder
 DXL2_ID                      = 2                 # Elbow
 DXL3_ID                      = 4                 # Wrist 1 LR
-DXL4_ID                      = 5                 # Wrist 2 UD
+DXL4_ID                      = 1                 # Wrist 2 UD
 DXL5_ID                      = 5                # Gripper
 BAUDRATE                    = 1000000           # Dynamixel default baudrate : 57600
 DEVICENAME                  = 'COM3'            # Check which port is being used on your controller
@@ -265,10 +265,10 @@ class Kinematics:
                 break
 
         # Disable Dynamixel Torque
-        torque_disable(DXL1_ID)
-        torque_disable(DXL2_ID)
-        torque_disable(DXL3_ID)
-        torque_disable(DXL4_ID)
+        #torque_disable(DXL1_ID)
+        #torque_disable(DXL2_ID)
+        #torque_disable(DXL3_ID)
+        #torque_disable(DXL4_ID)
         
         # Update final angles, save as unoffset for easier analysis
         self.T = [unoffset_angle(read_pos(DXL1_ID)),unoffset_angle(read_pos(DXL2_ID)),unoffset_angle(read_pos(DXL3_ID)),unoffset_angle(read_pos(DXL4_ID))]
